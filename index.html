@@ -1,0 +1,1391 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fault Tolerance | Dashboard</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f4f7fb;
+            color: #1e293b;
+        }
+
+        .sidebar {
+            position: fixed;
+            width: 245px;
+            height: 100vh;
+            background: #101c2c;
+            color: white;
+            padding: 28px 18px;
+        }
+
+        .logo {
+            font-size: 21px;
+            font-weight: bold;
+            margin-bottom: 45px;
+            color: #5eead4;
+        }
+
+        .logo span {
+            color: white;
+        }
+
+        .menu-title {
+            color: #8291a5;
+            font-size: 11px;
+            margin: 25px 10px 12px;
+            letter-spacing: 1px;
+        }
+
+        .menu a {
+            display: block;
+            color: #cbd5e1;
+            text-decoration: none;
+            padding: 13px 12px;
+            margin-bottom: 6px;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: .2s;
+        }
+
+        .menu a:hover,
+        .menu a.active {
+            background: #20364b;
+            color: #5eead4;
+        }
+
+        .main {
+            margin-left: 245px;
+            padding: 35px;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 35px;
+            gap: 15px;
+        }
+
+        .topbar h2 {
+            font-size: 25px;
+        }
+
+        .topbar p {
+            color: #64748b;
+            font-size: 13px;
+            margin-top: 5px;
+        }
+
+        .tag {
+            background: #ccfbf1;
+            color: #0f766e;
+            padding: 9px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .welcome {
+            background: linear-gradient(120deg, #142b40, #176b70);
+            color: white;
+            padding: 32px;
+            border-radius: 15px;
+            margin-bottom: 28px;
+        }
+
+        .welcome h1 {
+            font-size: 29px;
+            margin-bottom: 12px;
+        }
+
+        .welcome p {
+            color: #d0e9e8;
+            max-width: 650px;
+            line-height: 1.7;
+            font-size: 14px;
+        }
+
+        .section-title {
+            font-size: 19px;
+            margin-bottom: 18px;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            padding: 22px;
+            border-radius: 12px;
+            border: 1px solid #e7edf3;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, .03);
+        }
+
+        .card .icon {
+            font-size: 25px;
+            margin-bottom: 15px;
+        }
+
+        .card h3 {
+            font-size: 14px;
+            color: #64748b;
+            margin-bottom: 9px;
+        }
+
+        .card p {
+            font-size: 13px;
+            color: #94a3b8;
+            line-height: 1.5;
+        }
+
+        .card strong {
+            font-size: 22px;
+            color: #172b42;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 20px;
+        }
+
+        .panel {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            border: 1px solid #e7edf3;
+            margin-bottom: 20px;
+        }
+
+        .panel h3 {
+            margin-bottom: 15px;
+            font-size: 17px;
+        }
+
+        .panel p {
+            font-size: 14px;
+            color: #64748b;
+            line-height: 1.8;
+        }
+
+        .topic {
+            padding: 14px 0;
+            border-bottom: 1px solid #edf1f5;
+            font-size: 14px;
+        }
+
+        .topic:last-child {
+            border-bottom: none;
+        }
+
+        .topic span {
+            color: #0d9488;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        footer {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 12px;
+            padding: 25px;
+        }
+
+        @media (max-width: 1000px) {
+            .cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 650px) {
+            .sidebar {
+                position: relative;
+                width: 100%;
+                height: auto;
+            }
+
+            .main {
+                margin-left: 0;
+                padding: 20px;
+            }
+
+            .cards {
+                grid-template-columns: 1fr;
+            }
+
+            .topbar {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <aside class="sidebar">
+        <div class="logo">FT<span> / DASHBOARD</span></div>
+
+        <p class="menu-title">PRINCIPAL</p>
+
+        <nav class="menu">
+            <a href="#inicio" class="active">⌂ &nbsp; Inicio</a>
+            <a href="#conceptos">◈ &nbsp; Conceptos básicos</a>
+            <a href="#tolerancia">◎ &nbsp; Tolerancia a fallos</a>
+            <a href="#clasificacion">▦ &nbsp; Clasificación</a>
+            <a href="#tipos">◇ &nbsp; Tipos de fallas</a>
+            <a href="#mecanismos">⚙ &nbsp; Mecanismos</a>
+        </nav>
+
+        <p class="menu-title">INFORMACIÓN</p>
+
+        <nav class="menu">
+            <a href="#conclusion">▤ &nbsp; Conclusión</a>
+            <a href="#fuentes">▧ &nbsp; Referencias</a>
+        </nav>
+    </aside>
+
+    <main class="main" id="inicio">
+
+        <header class="topbar">
+            <div>
+                <h2>Centro de conocimiento</h2>
+                <p>Sistemas Operativos II / Unidad 4</p>
+            </div>
+
+            <div class="tag">● INVESTIGACIÓN</div>
+        </header>
+
+
+        <!-- DATOS INSTITUCIONALES -->
+        <section class="panel" style="margin-bottom:25px;">
+
+            <div
+                style="display:flex; justify-content:space-between; align-items:center; gap:15px; flex-wrap:wrap; margin-bottom:20px;">
+
+                <div>
+                    <h3 style="margin-bottom:5px;">
+                        Información académica
+                    </h3>
+
+                    <p style="font-size:12px;">
+                        Datos de identificación del proyecto
+                    </p>
+                </div>
+
+                <div
+                    style="background:#ccfbf1; color:#0f766e; padding:8px 13px; border-radius:20px; font-size:11px; font-weight:bold;">
+                    PROYECTO ACADÉMICO
+                </div>
+
+            </div>
+
+            <div style="display:grid; grid-template-columns:repeat(2,1fr); gap:20px;">
+
+                <div>
+                    <small style="color:#94a3b8;">INSTITUCIÓN</small>
+                    <p style="font-weight:bold; color:#1e293b;">
+                        Tecnológico Superior de México Campus Puruándiro
+                    </p>
+                </div>
+
+                <div>
+                    <small style="color:#94a3b8;">ASIGNATURA</small>
+                    <p style="font-weight:bold; color:#1e293b;">
+                        Sistemas Operativos II
+                    </p>
+                </div>
+
+                <div>
+                    <small style="color:#94a3b8;">CARRERA</small>
+                    <p style="font-weight:bold; color:#1e293b;">
+                        Tecnologías de la Información y Comunicaciones
+                    </p>
+                </div>
+
+                <div>
+                    <small style="color:#94a3b8;">UNIDAD Y GRUPO</small>
+                    <p style="font-weight:bold; color:#1e293b;">
+                        Unidad 4 · Grupo 089
+                    </p>
+                </div>
+
+                <div>
+                    <small style="color:#94a3b8;">ESTUDIANTE</small>
+                    <p style="font-weight:bold; color:#1e293b;">
+                        José Oswaldo Medina Campos
+                    </p>
+                </div>
+
+                <div>
+                    <small style="color:#94a3b8;">NÚMERO DE CONTROL</small>
+                    <p style="font-weight:bold; color:#1e293b;">
+                        22011050
+                    </p>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <section class="welcome">
+            <h1>Tolerancia a fallos</h1>
+            <p>
+                Descubre cómo los sistemas operativos distribuidos
+                pueden detectar, gestionar y recuperarse de diferentes
+                tipos de fallas para mantener su funcionamiento.
+            </p>
+        </section>
+
+        <h2 class="section-title">Explora los temas principales</h2>
+
+        <section class="cards">
+
+            <article class="card">
+                <div class="icon">🌐</div>
+                <h3>Conceptos fundamentales</h3>
+                <strong>01</strong>
+                <p>Definiciones esenciales de los sistemas distribuidos.</p>
+            </article>
+
+            <article class="card">
+                <div class="icon">🛡️</div>
+                <h3>Tolerancia a fallos</h3>
+                <strong>02</strong>
+                <p>Importancia y funcionamiento de la tolerancia a fallos.</p>
+            </article>
+
+            <article class="card">
+                <div class="icon">⚠️</div>
+                <h3>Clasificación</h3>
+                <strong>03</strong>
+                <p>Duración y comportamiento de las fallas.</p>
+            </article>
+
+            <article class="card">
+                <div class="icon">⚙️</div>
+                <h3>Mecanismos</h3>
+                <strong>04</strong>
+                <p>Herramientas para prevenir y gestionar fallas.</p>
+            </article>
+
+        </section>
+
+        <section class="content-grid">
+
+            <div class="panel">
+                <h3>¿Qué aprenderás?</h3>
+                <p>
+                    Esta investigación presenta los fundamentos de
+                    la tolerancia a fallos en sistemas operativos
+                    distribuidos, sus características y los principales
+                    mecanismos utilizados para mantener su disponibilidad.
+                </p>
+            </div>
+
+            <div class="panel">
+                <h3>Contenido de la investigación</h3>
+
+                <div class="topic">
+                    <span>01</span> Error y fallo
+                </div>
+
+                <div class="topic">
+                    <span>02</span> Disponibilidad y confiabilidad
+                </div>
+
+                <div class="topic">
+                    <span>03</span> Clasificación de fallas
+                </div>
+
+                <div class="topic">
+                    <span>04</span> Mecanismos de tolerancia
+                </div>
+            </div>
+
+        </section>
+
+
+        <!-- CONCEPTOS FUNDAMENTALES -->
+        <section id="conceptos" style="margin-top: 35px;">
+
+            <h2 class="section-title">
+                Conceptos fundamentales
+            </h2>
+
+            <p style="color:#64748b; margin-bottom:20px; font-size:14px;">
+                Conoce los términos esenciales para comprender
+                la tolerancia a fallos en sistemas distribuidos.
+            </p>
+
+            <div class="cards">
+
+                <article class="card">
+                    <div class="icon">⚠️</div>
+                    <h3>Error</h3>
+                    <p>Una equivocación o condición incorrecta
+                        que puede producir un problema.</p>
+                    <details>
+                        <summary>Leer más</summary>
+                        <p>Es una condición incorrecta dentro del
+                            sistema que puede originarse por un defecto
+                            de diseño, programación o procesamiento.</p>
+                    </details>
+                </article>
+
+                <article class="card">
+                    <div class="icon">🔴</div>
+                    <h3>Fallo</h3>
+                    <p>Cuando un sistema deja de proporcionar
+                        el servicio esperado.</p>
+                    <details>
+                        <summary>Leer más</summary>
+                        <p>Ocurre cuando el comportamiento del
+                            sistema se desvía de su funcionamiento
+                            especificado y afecta el servicio ofrecido.</p>
+                    </details>
+                </article>
+
+                <article class="card">
+                    <div class="icon">🟢</div>
+                    <h3>Disponibilidad</h3>
+                    <p>Capacidad de un sistema para estar
+                        operativo cuando se necesita.</p>
+                    <details>
+                        <summary>Leer más</summary>
+                        <p>Un sistema con alta disponibilidad
+                            permanece accesible durante la mayor
+                            parte del tiempo.</p>
+                    </details>
+                </article>
+
+                <article class="card">
+                    <div class="icon">🔒</div>
+                    <h3>Confiabilidad</h3>
+                    <p>Capacidad de funcionar correctamente
+                        durante un periodo determinado.</p>
+                    <details>
+                        <summary>Leer más</summary>
+                        <p>Representa la probabilidad de que
+                            el sistema continúe funcionando sin
+                            presentar fallas durante un intervalo.</p>
+                    </details>
+                </article>
+
+                <article class="card">
+                    <div class="icon">🛠️</div>
+                    <h3>Seguridad</h3>
+                    <p>Protección de la información y los
+                        recursos del sistema.</p>
+                    <details>
+                        <summary>Leer más</summary>
+                        <p>Incluye medidas para proteger los datos,
+                            controlar los accesos y evitar modificaciones
+                            no autorizadas.</p>
+                    </details>
+                </article>
+
+                <article class="card">
+                    <div class="icon">🔄</div>
+                    <h3>Mantenimiento y redundancia</h3>
+                    <p>Acciones y recursos que ayudan a mantener
+                        el funcionamiento del sistema.</p>
+                    <details>
+                        <summary>Leer más</summary>
+                        <p>El mantenimiento permite corregir y
+                            prevenir problemas. La redundancia utiliza
+                            componentes adicionales para ofrecer
+                            alternativas cuando ocurre una falla.</p>
+                    </details>
+                </article>
+
+            </div>
+        </section>
+
+
+        <!-- TOLERANCIA A FALLOS -->
+        <section id="tolerancia" style="margin-top:40px;">
+
+            <h2 class="section-title">Tolerancia a fallos</h2>
+
+            <p style="color:#64748b; margin-bottom:20px; font-size:14px;">
+                ¿Cómo puede un sistema continuar funcionando cuando
+                alguno de sus componentes deja de responder?
+            </p>
+
+            <div class="panel">
+                <h3>¿Qué es la tolerancia a fallos?</h3>
+                <p>
+                    Es la capacidad de un sistema informático para
+                    continuar ofreciendo sus servicios incluso cuando
+                    alguno de sus componentes presenta errores o fallas.
+                    Su objetivo es evitar que un problema individual
+                    provoque la interrupción completa del sistema.
+                </p>
+            </div>
+
+            <h3 class="section-title">¿Cómo funciona?</h3>
+
+            <div class="cards">
+
+                <article class="card">
+                    <div class="icon">🔍</div>
+                    <h3>01. Detección</h3>
+                    <p>El sistema identifica que un componente
+                        presenta un comportamiento anormal.</p>
+                </article>
+
+                <article class="card">
+                    <div class="icon">⚠️</div>
+                    <h3>02. Identificación</h3>
+                    <p>Se determina qué componente está
+                        presentando el problema.</p>
+                </article>
+
+                <article class="card">
+                    <div class="icon">🔄</div>
+                    <h3>03. Recuperación</h3>
+                    <p>Se utilizan recursos alternativos
+                        para recuperar el servicio.</p>
+                </article>
+
+                <article class="card">
+                    <div class="icon">✅</div>
+                    <h3>04. Continuidad</h3>
+                    <p>El sistema intenta mantener sus
+                        operaciones disponibles.</p>
+                </article>
+
+            </div>
+
+            <div class="panel">
+                <h3>Ejemplo: una red de servidores</h3>
+
+                <p style="margin-bottom:20px;">
+                    Imagina una plataforma que utiliza varios
+                    servidores para almacenar y procesar información.
+                    Si uno deja de funcionar, otro puede asumir
+                    parte de sus tareas.
+                </p>
+
+                <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:12px; text-align:center;">
+
+                    <div style="background:#ecfdf5; padding:18px; border-radius:10px;">
+                        <div style="font-size:30px;">🖥️</div>
+                        <strong style="color:#047857;">Servidor A</strong>
+                        <p style="color:#047857; font-size:12px;">Operativo</p>
+                    </div>
+
+                    <div style="background:#fee2e2; padding:18px; border-radius:10px;">
+                        <div style="font-size:30px;">⚠️</div>
+                        <strong style="color:#b91c1c;">Servidor B</strong>
+                        <p style="color:#b91c1c; font-size:12px;">Falla detectada</p>
+                    </div>
+
+                    <div style="background:#ecfdf5; padding:18px; border-radius:10px;">
+                        <div style="font-size:30px;">🖥️</div>
+                        <strong style="color:#047857;">Servidor C</strong>
+                        <p style="color:#047857; font-size:12px;">Disponible</p>
+                    </div>
+
+                </div>
+
+                <p style="margin-top:18px;">
+                    <strong style="color:#0d9488;">Resultado:</strong>
+                    gracias a la redundancia, el servidor C puede
+                    ayudar a mantener el servicio mientras se
+                    recupera el servidor B, si la arquitectura
+                    del sistema lo permite.
+                </p>
+            </div>
+
+            <div class="panel">
+                <h3>¿Por qué es importante?</h3>
+
+                <div class="topic">
+                    <span>01</span> Reduce las interrupciones del servicio.
+                </div>
+
+                <div class="topic">
+                    <span>02</span> Mejora la disponibilidad del sistema.
+                </div>
+
+                <div class="topic">
+                    <span>03</span> Protege la continuidad de las operaciones.
+                </div>
+
+                <div class="topic">
+                    <span>04</span> Facilita la recuperación ante problemas.
+                </div>
+            </div>
+
+        </section>
+
+
+        <!-- CLASIFICACION DE FALLAS -->
+        <section id="clasificacion" style="margin-top:40px;">
+
+            <h2 class="section-title">Clasificación de fallas</h2>
+
+            <p style="color:#64748b; margin-bottom:20px; font-size:14px;">
+                Las fallas pueden clasificarse según el tiempo
+                que permanecen presentes y la manera en que aparecen.
+            </p>
+
+            <div class="cards">
+
+                <article class="card">
+                    <div class="icon">⏱️</div>
+                    <h3>Fallas transitorias</h3>
+                    <strong style="color:#0d9488;">Temporales</strong>
+                    <p>Se presentan una sola vez y desaparecen
+                        después de un tiempo sin necesidad de
+                        realizar una reparación permanente.</p>
+                    <div style="margin-top:15px; background:#ecfdf5; padding:12px; border-radius:8px;">
+                        <small style="color:#047857;">Ejemplo</small>
+                        <p style="color:#047857;">Una interferencia momentánea en la comunicación.</p>
+                    </div>
+                </article>
+
+                <article class="card">
+                    <div class="icon">🔁</div>
+                    <h3>Fallas intermitentes</h3>
+                    <strong style="color:#d97706;">Recurrentes</strong>
+                    <p>Aparecen y desaparecen repetidamente,
+                        por lo que pueden resultar difíciles
+                        de detectar.</p>
+                    <div style="margin-top:15px; background:#fffbeb; padding:12px; border-radius:8px;">
+                        <small style="color:#b45309;">Ejemplo</small>
+                        <p style="color:#b45309;">Una conexión de red que se interrumpe ocasionalmente.</p>
+                    </div>
+                </article>
+
+                <article class="card">
+                    <div class="icon">🔴</div>
+                    <h3>Fallas permanentes</h3>
+                    <strong style="color:#dc2626;">Persistentes</strong>
+                    <p>Continúan presentes hasta que
+                        se corrige el problema o se reemplaza
+                        el componente afectado.</p>
+                    <div style="margin-top:15px; background:#fef2f2; padding:12px; border-radius:8px;">
+                        <small style="color:#b91c1c;">Ejemplo</small>
+                        <p style="color:#b91c1c;">Un componente de hardware que deja de funcionar.</p>
+                    </div>
+                </article>
+
+            </div>
+
+            <div class="panel">
+                <h3>Comportamiento de las fallas</h3>
+                <p style="margin-bottom:20px;">
+                    La siguiente representación muestra cómo puede
+                    variar el estado de un componente a través del tiempo.
+                </p>
+
+                <div style="display:grid; grid-template-columns:1fr; gap:22px;">
+
+                    <div>
+                        <strong style="font-size:13px;">Transitoria</strong>
+                        <div style="display:flex; align-items:center; gap:4px; margin-top:8px;">
+                            <div style="height:12px; background:#10b981; flex:3; border-radius:4px;"></div>
+                            <div style="height:12px; background:#ef4444; flex:1; border-radius:4px;"></div>
+                            <div style="height:12px; background:#10b981; flex:5; border-radius:4px;"></div>
+                        </div>
+                        <small style="color:#94a3b8;">Operativo → Falla → Operativo</small>
+                    </div>
+
+                    <div>
+                        <strong style="font-size:13px;">Intermitente</strong>
+                        <div style="display:flex; align-items:center; gap:4px; margin-top:8px;">
+                            <div style="height:12px; background:#10b981; flex:2; border-radius:4px;"></div>
+                            <div style="height:12px; background:#ef4444; flex:1; border-radius:4px;"></div>
+                            <div style="height:12px; background:#10b981; flex:2; border-radius:4px;"></div>
+                            <div style="height:12px; background:#ef4444; flex:1; border-radius:4px;"></div>
+                            <div style="height:12px; background:#10b981; flex:2; border-radius:4px;"></div>
+                        </div>
+                        <small style="color:#94a3b8;">Operativo → Falla → Operativo → Falla → Operativo</small>
+                    </div>
+
+                    <div>
+                        <strong style="font-size:13px;">Permanente</strong>
+                        <div style="display:flex; align-items:center; gap:4px; margin-top:8px;">
+                            <div style="height:12px; background:#10b981; flex:2; border-radius:4px;"></div>
+                            <div style="height:12px; background:#ef4444; flex:6; border-radius:4px;"></div>
+                        </div>
+                        <small style="color:#94a3b8;">Operativo → Falla persistente</small>
+                    </div>
+
+                </div>
+
+                <div style="display:flex; gap:18px; flex-wrap:wrap; margin-top:25px;">
+                    <span style="font-size:12px;">🟢 Operativo</span>
+                    <span style="font-size:12px;">🔴 Falla</span>
+                </div>
+            </div>
+
+        </section>
+
+
+        <!-- TIPOS DE FALLAS -->
+        <section id="tipos" style="margin-top:40px;">
+
+            <h2 class="section-title">Tipos de fallas en sistemas distribuidos</h2>
+
+            <p style="color:#64748b; margin-bottom:20px; font-size:14px;">
+                Los sistemas distribuidos pueden experimentar diferentes
+                tipos de fallas dependiendo del comportamiento de sus
+                componentes y de la comunicación entre ellos.
+            </p>
+
+            <div class="cards">
+
+                <article class="card">
+                    <div class="icon">💻</div>
+                    <h3>Falla Crash</h3>
+                    <strong style="color:#dc2626;">Interrupción</strong>
+                    <p>Un proceso o servidor deja de funcionar
+                        y no puede continuar ejecutando sus operaciones.</p>
+                    <details>
+                        <summary>Ver ejemplo</summary>
+                        <p>Un servidor se apaga inesperadamente
+                            y deja de responder a las solicitudes.</p>
+                    </details>
+                </article>
+
+                <article class="card">
+                    <div class="icon">📡</div>
+                    <h3>Falla de omisión</h3>
+                    <strong style="color:#d97706;">Comunicación</strong>
+                    <p>Un componente no envía o no recibe
+                        un mensaje que debería procesar.</p>
+                    <details>
+                        <summary>Ver ejemplo</summary>
+                        <p>Un mensaje enviado entre dos servidores
+                            nunca llega a su destino.</p>
+                    </details>
+                </article>
+
+                <article class="card">
+                    <div class="icon">⏱️</div>
+                    <h3>Falla de timing</h3>
+                    <strong style="color:#7c3aed;">Tiempo</strong>
+                    <p>Una operación ocurre antes o después
+                        del intervalo de tiempo establecido.</p>
+                    <details>
+                        <summary>Ver ejemplo</summary>
+                        <p>Un servidor responde después del límite
+                            de tiempo permitido por el sistema.</p>
+                    </details>
+                </article>
+
+                <article class="card">
+                    <div class="icon">❌</div>
+                    <h3>Falla de respuesta</h3>
+                    <strong style="color:#2563eb;">Resultado incorrecto</strong>
+                    <p>Un componente responde, pero proporciona
+                        un resultado equivocado o una respuesta
+                        fuera de lo esperado.</p>
+                    <details>
+                        <summary>Ver ejemplo</summary>
+                        <p>Un servidor calcula incorrectamente
+                            el resultado de una operación.</p>
+                    </details>
+                </article>
+
+                <article class="card">
+                    <div class="icon">🔀</div>
+                    <h3>Falla bizantina</h3>
+                    <strong style="color:#9333ea;">Comportamiento arbitrario</strong>
+                    <p>Un componente presenta comportamientos
+                        inconsistentes o arbitrarios, incluso
+                        enviando información diferente a distintos nodos.</p>
+                    <details>
+                        <summary>Ver ejemplo</summary>
+                        <p>Un nodo comunica valores contradictorios
+                            a diferentes componentes de la red.</p>
+                    </details>
+                </article>
+
+            </div>
+
+            <div class="panel">
+                <h3>Comparación de los tipos de fallas</h3>
+
+                <div style="overflow-x:auto;">
+                    <table style="width:100%; border-collapse:collapse; font-size:13px; text-align:left;">
+
+                        <thead>
+                            <tr style="background:#f1f5f9;">
+                                <th style="padding:13px;">Tipo</th>
+                                <th style="padding:13px;">Problema principal</th>
+                                <th style="padding:13px;">Comportamiento</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <tr style="border-bottom:1px solid #e2e8f0;">
+                                <td style="padding:13px;">Crash</td>
+                                <td style="padding:13px;">Interrupción</td>
+                                <td style="padding:13px;">Deja de responder</td>
+                            </tr>
+
+                            <tr style="border-bottom:1px solid #e2e8f0;">
+                                <td style="padding:13px;">Omisión</td>
+                                <td style="padding:13px;">Mensajes</td>
+                                <td style="padding:13px;">No envía o recibe</td>
+                            </tr>
+
+                            <tr style="border-bottom:1px solid #e2e8f0;">
+                                <td style="padding:13px;">Timing</td>
+                                <td style="padding:13px;">Tiempo</td>
+                                <td style="padding:13px;">Respuesta tardía o anticipada</td>
+                            </tr>
+
+                            <tr style="border-bottom:1px solid #e2e8f0;">
+                                <td style="padding:13px;">Respuesta</td>
+                                <td style="padding:13px;">Resultados</td>
+                                <td style="padding:13px;">Devuelve información incorrecta</td>
+                            </tr>
+
+                            <tr>
+                                <td style="padding:13px;">Bizantina</td>
+                                <td style="padding:13px;">Comportamiento</td>
+                                <td style="padding:13px;">Actuación arbitraria o inconsistente</td>
+                            </tr>
+                        </tbody>
+
+                    </table>
+                </div>
+            </div>
+
+        </section>
+
+
+        <!-- MECANISMOS DE TOLERANCIA A FALLOS -->
+        <section id="mecanismos" style="margin-top:40px;">
+
+            <h2 class="section-title">Mecanismos de tolerancia a fallos</h2>
+
+            <p style="color:#64748b; margin-bottom:20px; font-size:14px;">
+                Son técnicas utilizadas para detectar problemas,
+                mantener los servicios disponibles y recuperar
+                el funcionamiento de un sistema distribuido.
+            </p>
+
+            <div class="cards">
+
+                <article class="card">
+                    <div class="icon">🖥️</div>
+                    <h3>Redundancia</h3>
+                    <p>Consiste en contar con componentes adicionales
+                        que puedan utilizarse cuando otro componente
+                        presenta una falla.</p>
+                    <details>
+                        <summary>Ver ejemplo</summary>
+                        <p>Un sistema cuenta con dos servidores
+                            para evitar depender de uno solo.</p>
+                    </details>
+                </article>
+
+                <article class="card">
+                    <div class="icon">📂</div>
+                    <h3>Replicación</h3>
+                    <p>Consiste en mantener copias de datos o servicios
+                        en diferentes nodos del sistema.</p>
+                    <details>
+                        <summary>Ver ejemplo</summary>
+                        <p>Una base de datos mantiene copias de su
+                            información en varios servidores.</p>
+                    </details>
+                </article>
+
+                <article class="card">
+                    <div class="icon">🔍</div>
+                    <h3>Detección de fallas</h3>
+                    <p>Permite identificar cuándo un componente
+                        deja de responder o presenta un comportamiento
+                        anormal.</p>
+                    <details>
+                        <summary>Ver ejemplo</summary>
+                        <p>El sistema supervisa periódicamente
+                            la respuesta de sus servidores.</p>
+                    </details>
+                </article>
+
+                <article class="card">
+                    <div class="icon">🔄</div>
+                    <h3>Recuperación</h3>
+                    <p>Busca restablecer las operaciones después
+                        de que ocurre una falla.</p>
+                    <details>
+                        <summary>Ver ejemplo</summary>
+                        <p>Un servidor alternativo comienza a
+                            proporcionar el servicio cuando el principal
+                            deja de funcionar.</p>
+                    </details>
+                </article>
+
+                <article class="card">
+                    <div class="icon">💾</div>
+                    <h3>Puntos de control</h3>
+                    <p>Guardan el estado de un proceso para facilitar
+                        su recuperación desde un punto anterior.</p>
+                    <details>
+                        <summary>Ver ejemplo</summary>
+                        <p>Una aplicación guarda periódicamente
+                            el progreso de una operación para poder
+                            recuperarlo si ocurre una interrupción.</p>
+                    </details>
+                </article>
+
+            </div>
+
+
+            <!-- EJEMPLO PRACTICO -->
+            <section class="content-section" id="ejemplo-practico">
+                <div class="section-heading">
+                    <span class="section-tag">CASO DE ESTUDIO</span>
+                    <h2>Ejemplo práctico: Biblioteca digital</h2>
+                    <p>
+                        Simulación de un sistema distribuido que mantiene sus servicios
+                        disponibles cuando uno de sus servidores presenta una falla.
+                    </p>
+                </div>
+
+                <div class="panel" style="margin-bottom:22px;">
+                    <h3>Escenario del problema</h3>
+                    <p>
+                        Una biblioteca digital permite que cientos de usuarios consulten
+                        libros, busquen títulos y revisen sus préstamos. Para evitar que
+                        una falla interrumpa el servicio, utiliza dos servidores:
+                        uno principal y otro de respaldo.
+                    </p>
+                    <p>
+                        Cuando el servidor principal deja de funcionar, el sistema detecta
+                        el problema y activa el servidor de respaldo para continuar
+                        atendiendo las solicitudes de los usuarios.
+                    </p>
+                </div>
+
+                <!-- INDICADORES -->
+                <div
+                    style="display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:15px; margin-bottom:22px;">
+                    <div class="panel">
+                        <small style="color:#64748b;">SERVIDORES ACTIVOS</small>
+                        <h2 id="ep-activos" style="font-size:27px; color:#0f766e;">2 / 2</h2>
+                        <p style="font-size:12px;">Infraestructura disponible</p>
+                    </div>
+
+                    <div class="panel">
+                        <small style="color:#64748b;">SERVICIO</small>
+                        <h2 id="ep-servicio" style="font-size:21px; color:#16a34a;">Disponible</h2>
+                        <p style="font-size:12px;">Acceso a la biblioteca</p>
+                    </div>
+
+                    <div class="panel">
+                        <small style="color:#64748b;">MODO DE OPERACIÓN</small>
+                        <h2 id="ep-modo" style="font-size:21px;">Normal</h2>
+                        <p style="font-size:12px;">Funcionamiento del sistema</p>
+                    </div>
+                </div>
+
+                <!-- ARQUITECTURA -->
+                <div class="panel" style="margin-bottom:22px;">
+                    <h3 style="margin-bottom:18px;">Arquitectura del sistema</h3>
+
+                    <div
+                        style="display:grid; grid-template-columns:repeat(auto-fit,minmax(145px,1fr)); gap:14px; align-items:center; text-align:center;">
+
+                        <div style="background:#eff6ff; border:1px solid #bfdbfe; padding:18px; border-radius:12px;">
+                            <div style="font-size:30px;">👥</div>
+                            <strong>Usuarios</strong>
+                            <p style="font-size:12px;">Consultan libros y servicios</p>
+                        </div>
+
+                        <div style="font-size:24px; color:#64748b;">⇄</div>
+
+                        <div id="ep-principal"
+                            style="background:#dcfce7; border:1px solid #86efac; padding:18px; border-radius:12px;">
+                            <div style="font-size:30px;">🖥️</div>
+                            <strong>Servidor principal</strong>
+                            <p id="ep-estado-principal" style="font-size:12px; color:#15803d; font-weight:bold;">●
+                                Operativo</p>
+                        </div>
+
+                        <div style="font-size:24px; color:#64748b;">⇄</div>
+
+                        <div id="ep-respaldo"
+                            style="background:#f1f5f9; border:1px solid #cbd5e1; padding:18px; border-radius:12px;">
+                            <div style="font-size:30px;">💻</div>
+                            <strong>Servidor de respaldo</strong>
+                            <p id="ep-estado-respaldo" style="font-size:12px; color:#64748b; font-weight:bold;">● En
+                                espera</p>
+                        </div>
+                    </div>
+
+                    <div style="text-align:center; margin-top:18px;">
+                        <div style="font-size:25px;">⇅</div>
+                        <div
+                            style="display:inline-block; background:#f0fdfa; border:1px solid #99f6e4; padding:13px 25px; border-radius:12px;">
+                            <div style="font-size:25px;">🗄️</div>
+                            <strong>Base de datos replicada</strong>
+                            <p style="font-size:12px;">Información de los libros</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CONTROLES -->
+                <div class="panel" style="margin-bottom:22px;">
+                    <h3>Centro de simulación</h3>
+                    <p style="margin-bottom:18px;">
+                        Utiliza los botones para observar cómo responde el sistema ante
+                        una interrupción del servidor principal.
+                    </p>
+
+                    <div style="display:flex; flex-wrap:wrap; gap:10px;">
+                        <button onclick="epProvocarFalla()"
+                            style="background:#dc2626; color:white; border:0; padding:12px 18px; border-radius:9px; cursor:pointer; font-weight:bold;">
+                            ⚠ Simular falla
+                        </button>
+
+                        <button onclick="epRecuperar()"
+                            style="background:#0f766e; color:white; border:0; padding:12px 18px; border-radius:9px; cursor:pointer; font-weight:bold;">
+                            ↻ Recuperar servidor
+                        </button>
+
+                        <button onclick="epReiniciar()"
+                            style="background:#e2e8f0; color:#334155; border:0; padding:12px 18px; border-radius:9px; cursor:pointer; font-weight:bold;">
+                            Reiniciar escenario
+                        </button>
+                    </div>
+
+                    <div id="ep-mensaje"
+                        style="margin-top:20px; padding:16px; border-radius:10px; background:#f0fdf4; border:1px solid #bbf7d0;">
+                        <strong style="color:#15803d;">Sistema funcionando correctamente</strong>
+                        <p style="margin-top:5px; font-size:13px;">
+                            El servidor principal atiende las solicitudes y el servidor
+                            de respaldo permanece preparado.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- REGISTRO DE EVENTOS -->
+                <div class="panel">
+                    <h3>Registro de eventos del sistema</h3>
+                    <p style="font-size:12px; margin-bottom:15px;">
+                        Historial de las acciones realizadas durante la simulación.
+                    </p>
+
+                    <div id="ep-registro" style="display:flex; flex-direction:column; gap:10px;">
+                        <div style="padding:12px; background:#f0fdf4; border-radius:8px; font-size:13px;">
+                            <strong>INICIO</strong> — Sistema iniciado correctamente. Servidor principal operativo.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- EXPLICACION -->
+                <div class="panel" style="margin-top:22px;">
+                    <h3>¿Qué demuestra esta simulación?</h3>
+                    <ul style="padding-left:20px; line-height:1.9;">
+                        <li><strong>Detección:</strong> el sistema identifica que el servidor principal dejó de
+                            responder.</li>
+                        <li><strong>Conmutación por error:</strong> el servidor de respaldo toma la atención de las
+                            solicitudes.</li>
+                        <li><strong>Continuidad:</strong> los usuarios pueden seguir consultando la biblioteca.</li>
+                        <li><strong>Recuperación:</strong> el servidor principal vuelve a estar disponible.</li>
+                    </ul>
+                    <p style="margin-top:15px; font-size:12px; color:#64748b;">
+                        Nota: esta es una simulación educativa de los mecanismos de
+                        tolerancia a fallos. No representa una conexión real entre servidores.
+                    </p>
+                </div>
+            </section>
+
+            <script>
+                function epAgregarEvento(tipo, mensaje) {
+                    const registro = document.getElementById("ep-registro");
+                    const evento = document.createElement("div");
+
+                    evento.style.cssText =
+                        "padding:12px; background:#f8fafc; border-left:4px solid #0f766e; border-radius:7px; font-size:13px;";
+
+                    const hora = new Date().toLocaleTimeString("es-MX");
+
+                    evento.innerHTML =
+                        "<strong>" + tipo + " [" + hora + "]</strong><br>" + mensaje;
+
+                    registro.prepend(evento);
+                }
+
+                function epProvocarFalla() {
+                    document.getElementById("ep-principal").style.background = "#fee2e2";
+                    document.getElementById("ep-principal").style.borderColor = "#fca5a5";
+
+                    document.getElementById("ep-respaldo").style.background = "#dcfce7";
+                    document.getElementById("ep-respaldo").style.borderColor = "#86efac";
+
+                    document.getElementById("ep-estado-principal").textContent = "● Fuera de servicio";
+                    document.getElementById("ep-estado-principal").style.color = "#dc2626";
+
+                    document.getElementById("ep-estado-respaldo").textContent = "● Atendiendo solicitudes";
+                    document.getElementById("ep-estado-respaldo").style.color = "#15803d";
+
+                    document.getElementById("ep-activos").textContent = "1 / 2";
+                    document.getElementById("ep-servicio").textContent = "Disponible";
+                    document.getElementById("ep-servicio").style.color = "#16a34a";
+                    document.getElementById("ep-modo").textContent = "Respaldo activo";
+
+                    document.getElementById("ep-mensaje").style.background = "#fffbeb";
+                    document.getElementById("ep-mensaje").style.borderColor = "#fcd34d";
+                    document.getElementById("ep-mensaje").innerHTML =
+                        "<strong style='color:#b45309;'>¡Falla detectada!</strong>" +
+                        "<p style='margin-top:5px; font-size:13px;'>El servidor principal dejó de responder. El sistema activó el servidor de respaldo y la biblioteca continúa disponible.</p>";
+
+                    epAgregarEvento("ALERTA", "Se detectó una falla en el servidor principal.");
+                    epAgregarEvento("RESPALDO", "El servidor secundario asumió la atención de las solicitudes.");
+                    epAgregarEvento("SERVICIO", "La biblioteca digital continúa disponible.");
+
+                }
+
+                function epRecuperar() {
+                    document.getElementById("ep-principal").style.background = "#dcfce7";
+                    document.getElementById("ep-principal").style.borderColor = "#86efac";
+
+                    document.getElementById("ep-respaldo").style.background = "#f1f5f9";
+                    document.getElementById("ep-respaldo").style.borderColor = "#cbd5e1";
+
+                    document.getElementById("ep-estado-principal").textContent = "● Operativo";
+                    document.getElementById("ep-estado-principal").style.color = "#15803d";
+
+                    document.getElementById("ep-estado-respaldo").textContent = "● En espera";
+                    document.getElementById("ep-estado-respaldo").style.color = "#64748b";
+
+                    document.getElementById("ep-activos").textContent = "2 / 2";
+                    document.getElementById("ep-servicio").textContent = "Disponible";
+                    document.getElementById("ep-servicio").style.color = "#16a34a";
+                    document.getElementById("ep-modo").textContent = "Normal";
+
+                    document.getElementById("ep-mensaje").style.background = "#f0fdf4";
+                    document.getElementById("ep-mensaje").style.borderColor = "#bbf7d0";
+                    document.getElementById("ep-mensaje").innerHTML =
+                        "<strong style='color:#15803d;'>Servidor recuperado</strong>" +
+                        "<p style='margin-top:5px; font-size:13px;'>El servidor principal volvió a estar operativo. El sistema regresa a su funcionamiento normal.</p>";
+
+                    epAgregarEvento("RECUPERACIÓN", "El servidor principal volvió a estar operativo.");
+                    epAgregarEvento("SISTEMA", "El servidor de respaldo regresó al modo de espera.");
+                }
+
+                function epReiniciar() {
+                    epRecuperar();
+
+                    document.getElementById("ep-registro").innerHTML =
+                        "<div style='padding:12px; background:#f0fdf4; border-radius:8px; font-size:13px;'><strong>INICIO</strong> — Escenario reiniciado. Todos los servidores están disponibles.</div>";
+
+                    document.getElementById("ep-mensaje").innerHTML =
+                        "<strong style='color:#15803d;'>Sistema funcionando correctamente</strong>" +
+                        "<p style='margin-top:5px; font-size:13px;'>El servidor principal atiende las solicitudes y el servidor de respaldo permanece preparado.</p>";
+                }
+            </script>
+
+
+            <!-- IMPORTANCIA -->
+            <div class="panel">
+
+                <h3>Beneficios de estos mecanismos</h3>
+
+                <div class="topic">
+                    <span>01</span> Mayor disponibilidad de los servicios.
+                </div>
+
+                <div class="topic">
+                    <span>02</span> Protección y conservación de la información.
+                </div>
+
+                <div class="topic">
+                    <span>03</span> Reducción del tiempo de interrupción.
+                </div>
+
+                <div class="topic">
+                    <span>04</span> Recuperación ante situaciones inesperadas.
+                </div>
+
+                <div class="topic">
+                    <span>05</span> Mayor continuidad de las operaciones.
+                </div>
+
+            </div>
+
+        </section>
+
+        <script>
+            function simularFalla() {
+
+                document.getElementById("estadoPrincipal").innerHTML =
+                    "● Fuera de servicio";
+
+                document.getElementById("estadoPrincipal").style.color =
+                    "#dc2626";
+
+                document.getElementById("estadoRespaldo").innerHTML =
+                    "● Atendiendo servicio";
+
+                document.getElementById("estadoRespaldo").style.color =
+                    "#047857";
+
+                document.getElementById("resultadoSimulacion").innerHTML =
+                    "⚠ Se detectó una falla en el servidor principal. El servidor de respaldo asumió el servicio. La continuidad se mantiene gracias a la redundancia.";
+
+                document.getElementById("resultadoSimulacion").style.background =
+                    "#ecfdf5";
+
+                document.getElementById("resultadoSimulacion").style.color =
+                    "#047857";
+            }
+
+            function restablecerSistema() {
+
+                document.getElementById("estadoPrincipal").innerHTML =
+                    "● Operativo";
+
+                document.getElementById("estadoPrincipal").style.color =
+                    "#047857";
+
+                document.getElementById("estadoRespaldo").innerHTML =
+                    "● En espera";
+
+                document.getElementById("estadoRespaldo").style.color =
+                    "#64748b";
+
+                document.getElementById("resultadoSimulacion").innerHTML =
+                    "✓ Sistema restablecido. El servidor principal vuelve a estar operativo.";
+
+                document.getElementById("resultadoSimulacion").style.background =
+                    "#ecfdf5";
+
+                document.getElementById("resultadoSimulacion").style.color =
+                    "#047857";
+            }
+        </script>
+
+        <!-- CONCLUSIÓN -->
+        <section class="content-section" id="conclusion">
+            <div class="section-heading">
+                <span class="section-tag">REFLEXIÓN FINAL</span>
+                <h2>Conclusión personal</h2>
+                <p>Lo aprendido sobre la tolerancia a fallos en sistemas operativos distribuidos.</p>
+            </div>
+
+            <div class="panel">
+                <h3>La importancia de anticiparse a los fallos</h3>
+                <p>
+                    Después de investigar este tema, comprendí que la tolerancia a fallos
+                    es fundamental para que los sistemas distribuidos puedan seguir
+                    funcionando incluso cuando alguno de sus componentes presenta
+                    problemas. No se trata solamente de reparar un error, sino de
+                    diseñar el sistema para detectar los fallos, recuperarse de ellos
+                    y mantener disponibles los servicios.
+                </p>
+                <p>
+                    También aprendí que existen diferentes clases de fallos y que cada
+                    uno necesita mecanismos adecuados para tratarlo. Por ejemplo, la
+                    redundancia, la replicación y los puntos de recuperación permiten
+                    reducir las interrupciones y evitar la pérdida de información.
+                </p>
+                <p>
+                    En mi opinión, estos conocimientos son importantes en el área de
+                    Tecnologías de la Información y Comunicaciones, porque actualmente
+                    dependemos de servicios digitales que necesitan funcionar de forma
+                    confiable. Un sistema bien diseñado no es aquel que nunca presenta
+                    problemas, sino aquel que puede responder correctamente cuando
+                    estos ocurren.
+                </p>
+            </div>
+        </section>
+
+        <!-- FUENTES BIBLIOGRÁFICAS -->
+        <section class="content-section" id="fuentes">
+            <div class="section-heading">
+                <span class="section-tag">BIBLIOGRAFÍA</span>
+                <h2>Fuentes consultadas</h2>
+                <p>Recursos utilizados para investigar la tolerancia a fallos.</p>
+            </div>
+
+            <div class="panel">
+
+                <div style="margin-bottom:22px;">
+                    <h3>1. Fortinet</h3>
+                    <p>¿Qué es la tolerancia a fallas?</p>
+                    <a href="https://www.fortinet.com/lat/resources/cyberglossary/fault-tolerance" target="_blank"
+                        rel="noopener noreferrer">
+                        Consultar fuente <span>↗</span>
+                    </a>
+                </div>
+
+                <div style="margin-bottom:22px;">
+                    <h3>2. Ciberseguridad.com</h3>
+                    <p>Tolerancia a fallos, qué es y técnicas.</p>
+                    <a href="https://ciberseguridad.com/guias/prevencion-proteccion/tolerancia-fallos/" target="_blank"
+                        rel="noopener noreferrer">
+                        Consultar fuente <span>↗</span>
+                    </a>
+                </div>
+
+                <div style="margin-bottom:22px;">
+                    <h3>3. Prezi</h3>
+                    <p>Tolerancia a Fallos en Sistemas Distribuidos.</p>
+                    <a href="https://prezi.com/p/nweqdvmb41ir/tolerancia-a-fallos-en-sistemas-distribuidos/"
+                        target="_blank" rel="noopener noreferrer">
+                        Consultar presentación <span>↗</span>
+                    </a>
+                </div>
+
+                <div>
+                    <h3>4. Scribd</h3>
+                    <p>Tolerancia a Fallos en Sistemas Distribuidos.</p>
+                    <a href="https://es.scribd.com/document/488624477/4-TOLERANCIA-A-FALLOS" target="_blank"
+                        rel="noopener noreferrer">
+                        Consultar documento <span>↗</span>
+                    </a>
+                </div>
+
+                <div style="margin-top:25px; padding-top:15px; border-top:1px solid #e2e8f0;">
+                    <p style="font-size:12px; color:#64748b;">
+                        Fecha de consulta: 8 de noviembre de 2026.
+                    </p>
+                </div>
+
+            </div>
+        </section>
+
+
+
+        <footer>
+            FAULT TOLERANCE DASHBOARD · SISTEMAS OPERATIVOS II
+        </footer>
+
+    </main>
+
+</body>
+
+</html>
